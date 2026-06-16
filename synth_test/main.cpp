@@ -3,21 +3,27 @@
 #include <cmath>
 #include <vector>
 #include <string>
+#include <atomic>
 
 class Synth : public sf::SoundStream {
 private:
     std::vector<std::int16_t> samples;
-
-    double frequency = 440.0;
+    
+    std::atomic<double> frequency{440.0};
+    std::atomic<double> frequency2{440.5};
     double phase = 0.0;
-    double frequency2 = 440.5;
     double phase2 = 0.0;
+
+    std::atomic<bool> noteOn{false};
+    std::atomic<float> blend{0.8f};  // Percentage of sound that comes from oscillator 1
     
-    bool noteOn = false;
-    float blend = 0.8;  // Percentage of sound that comes from oscillator 1
+    enum class Waveform {
+        Sine,
+        Saw
+    };
     
-    std::string osc1 = "sin";
-    std::string osc2 = "saw";
+    std::atomic<Waveform> osc1{Waveform::Sine};
+    std::atomic<Waveform> osc2{Waveform::Saw};
 
     static constexpr int SAMPLE_RATE = 44100;
     static constexpr int BUFFER_SIZE = 512;
@@ -35,7 +41,7 @@ public:
     void setFrequency(double freq) {
         if (freq != 0.0) {
             frequency = freq;
-            frequency2 = freq + 0.5;
+            frequency2 = freq * 1.002;
         }
     }
     
@@ -47,17 +53,17 @@ public:
         blend = b;
     }
     
-    void setOscillators(std::string a, std::string b) {
-        osc1 = a;
-        osc2 = b;
+    void setOscillators(Waveform a, Waveform b) {
+        osc1.store(a);
+        osc2.store(b);
     }
     
-    void setOscillator1(std::string type) {
-        osc1 = type;
+    void setOscillator1(Waveform type) {
+        osc1.store(type);
     }
-    
-    void setOscillator2(std::string type) {
-        osc2 = type;
+
+    void setOscillator2(Waveform type) {
+        osc2.store(type);
     }
 
 protected:
@@ -67,25 +73,44 @@ protected:
     
     bool onGetData(Chunk& data) override {
         constexpr double PI = 3.141592653589793;
+        
+        double freq1 = frequency.load();
+        double freq2 = frequency2.load();
+
+        float currentBlend = blend.load();
+        bool currentNoteOn = noteOn.load();
+
+        Waveform wave1 = osc1.load();
+        Waveform wave2 = osc2.load();
 
         for (int i = 0; i < BUFFER_SIZE; i++) {
             double oscillator1 = 0;
-            if (osc1 == "sin")
-                oscillator1 = std::sin(phase);
-            else if (osc1 == "saw")
-                oscillator1 = sawWave(phase);
+            switch (wave1) {
+                case Waveform::Sine:
+                    oscillator1 = std::sin(phase);
+                    break;
+
+                case Waveform::Saw:
+                    oscillator1 = sawWave(phase);
+                    break;
+            }
             
             double oscillator2 = 0;
-            if (osc2 == "sin")
-                oscillator2 = std::sin(phase2);
-            else if (osc2 == "saw")
-                oscillator2 = sawWave(phase2);
+            switch (wave2) {
+                case Waveform::Sine:
+                    oscillator2 = std::sin(phase2);
+                    break;
+
+                case Waveform::Saw:
+                    oscillator2 = sawWave(phase2);
+                    break;
+            }
             
             double mixed =
-                blend * oscillator1 +
-                (1 - blend) * oscillator2;
+                currentBlend * oscillator1 +
+                (1.0f - currentBlend) * oscillator2;
 
-            samples[i] = noteOn
+            samples[i] = currentNoteOn
                 ? static_cast<std::int16_t>(mixed * 3000)
                 : 0;
 
