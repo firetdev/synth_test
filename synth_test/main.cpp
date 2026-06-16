@@ -114,8 +114,8 @@ protected:
                 ? static_cast<std::int16_t>(mixed * 3000)
                 : 0;
 
-            phase += 2.0 * PI * frequency / SAMPLE_RATE;
-            phase2 += 2.0 * PI * frequency2 / SAMPLE_RATE;
+            phase += 2.0 * PI * freq1 / SAMPLE_RATE;
+            phase2 += 2.0 * PI * freq2 / SAMPLE_RATE;
 
             if (phase > 2.0 * PI)
                 phase -= 2.0 * PI;
