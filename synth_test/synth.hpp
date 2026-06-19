@@ -4,6 +4,7 @@
 #include <vector>
 #include <atomic>
 #include <array>
+#include <map>
 
 class Synth : public sf::SoundStream {
 public:

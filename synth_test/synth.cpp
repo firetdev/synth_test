@@ -82,8 +82,8 @@ bool Synth::onGetData(Chunk& data) {
             if (voices[v].phase2 > 2.0 * PI) voices[v].phase2 -= 2.0 * PI;
         }
 
-        // Sample is multiplied by 3000 for volume, but divided by 4 so that you can play chords without clipping
-        samples[i] = static_cast<std::int16_t>((mixedSample / 4.0) * 3000);
+        // Sample is multiplied by 4000 for volume, but divided by 4 so that you can play chords without clipping
+        samples[i] = static_cast<std::int16_t>((mixedSample / 4.0) * 4000);
     }
 
     data.samples = samples.data();

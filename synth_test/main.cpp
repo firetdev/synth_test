@@ -1,33 +1,54 @@
 #include <SFML/Graphics.hpp>
+#include <map>
+#include <cmath>
 #include "synth.hpp"
+#include "get_base_frequency.hpp"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({800, 600}), "Elasticity Polyphonic", sf::Style::Titlebar | sf::Style::Close);
 
     Synth synth;
     synth.play();
+    
+    int octaveShift = 0;
+    std::map<sf::Keyboard::Key, double> activeNotes;
 
     while (window.isOpen()) {
         while (auto event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
                 window.close();
-            }
-            else if (const auto* keyPress = event->getIf<sf::Event::KeyPressed>()) {
-                if (keyPress->code == sf::Keyboard::Key::A) synth.noteOn(261.63); // C4
-                else if (keyPress->code == sf::Keyboard::Key::S) synth.noteOn(293.66); // D4
-                else if (keyPress->code == sf::Keyboard::Key::D) synth.noteOn(329.63); // E4
-                else if (keyPress->code == sf::Keyboard::Key::F) synth.noteOn(349.23); // F4
-                else if (keyPress->code == sf::Keyboard::Key::G) synth.noteOn(392.00); // G4
-            }
-            else if (const auto* keyRelease = event->getIf<sf::Event::KeyReleased>()) {
-                if (keyRelease->code == sf::Keyboard::Key::A) synth.noteOff(261.63);
-                else if (keyRelease->code == sf::Keyboard::Key::S) synth.noteOff(293.66);
-                else if (keyRelease->code == sf::Keyboard::Key::D) synth.noteOff(329.63);
-                else if (keyRelease->code == sf::Keyboard::Key::F) synth.noteOff(349.23);
-                else if (keyRelease->code == sf::Keyboard::Key::G) synth.noteOff(392.00);
+            } else if (const auto* keyPress = event->getIf<sf::Event::KeyPressed>()) {
+                auto code = keyPress->code;
+                
+                // Handle Octave Shifting
+                if (code == sf::Keyboard::Key::Up) {
+                    if (octaveShift < 3) octaveShift++;
+                } else if (code == sf::Keyboard::Key::Down) {
+                    if (octaveShift > -3) octaveShift--;
+                }
+                // Handle Note Playing
+                else {
+                    double baseFreq = getBaseFrequency(code);
+                    
+                    // If it's a mapped key anf not already being held down
+                    if (baseFreq > 0.0 && activeNotes.find(code) == activeNotes.end()) {
+                        double freq = baseFreq * std::pow(2.0, octaveShift);
+                        
+                        synth.noteOn(freq);
+                        activeNotes[code] = freq;
+                    }
+                }
+            } else if (const auto* keyRelease = event->getIf<sf::Event::KeyReleased>()) {
+                auto code = keyRelease->code;
+                
+                // If we release a key that is currently playing, turn it off
+                if (activeNotes.find(code) != activeNotes.end()) {
+                    synth.noteOff(activeNotes[code]);
+                    activeNotes.erase(code);
+                }
             }
         }
-
+        
         window.clear();
         window.display();
     }
