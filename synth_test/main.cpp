@@ -5,7 +5,7 @@
 #include "get_base_frequency.hpp"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode({800, 600}), "Elasticity Polyphonic", sf::Style::Titlebar | sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode({800, 600}), "Synth", sf::Style::Titlebar | sf::Style::Close);
 
     Synth synth;
     synth.play();
