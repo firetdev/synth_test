@@ -54,7 +54,7 @@ bool Synth::onGetData(Chunk& data) {
             if (!voices[v].active.load()) continue;
 
             double freq1 = voices[v].frequency.load();
-            double freq2 = freq1 * 1.002; // Slight detune for thickness
+            double freq2 = freq1 * 1.002;  // Slight detune for thickness
 
             double oscillator1 = 0;
             switch (wave1) {
