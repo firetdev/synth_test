@@ -38,11 +38,11 @@ private:
         double phase = 0.0;
         double phase2 = 0.0;
         float amplitude = 1.f;
-        bool peaked = false;  // Checks whetehr the amplitude should be rising to 1.0 or falling to the sustain level
+        bool peaked = false;  // Checks whether the amplitude should be rising to 1.0 or falling to the sustain level
     };
     
     struct Envelope {
-        float a = 0.f, d = 10.f, s = 5.f, r = 0.f;
+        float a = 2.f, d = 2.f, s = 0.3f, r = 2.f;
     };
 
     static constexpr int SAMPLE_RATE = 44100;
