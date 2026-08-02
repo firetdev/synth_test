@@ -45,7 +45,7 @@ private:
 protected:
     static constexpr double PI = 3.14159265358979323846;
     
-    double sawWave(double ph) { return (ph / PI) - 1.0; }
+    double sawWave(double ph) { return (ph / PI) - 1.0; }  // Rising saw wave; falling would be 1.0 - (ph / PI)
     
     bool onGetData(Chunk&) override;
     
