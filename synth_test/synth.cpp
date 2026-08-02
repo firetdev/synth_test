@@ -10,11 +10,29 @@ Synth::Synth() {
     );
 }
 
+Synth::Synth(float a, float d, float s, float r) {
+    samples.resize(BUFFER_SIZE);
+    initialize(
+        1,
+        SAMPLE_RATE,
+        {sf::SoundChannel::Mono}
+    );
+    
+    adsr.a = a;
+    adsr.d = d;
+    adsr.s = s;
+    adsr.r = r;
+}
+
 // Trigger a note on a specific frequency
 void Synth::noteOn(double freq) {
+    int index = -1;
+    
     // Prevent duplicate voices if the key is held down
     for (int i = 0; i < MAX_VOICES; ++i) {
         if (voices[i].active.load() && voices[i].frequency.load() == freq) {
+            voices[i].released.store(false);
+            voices[i].peaked = false;
             return;
         }
     }
@@ -26,8 +44,21 @@ void Synth::noteOn(double freq) {
             voices[i].phase = 0.0;  // Reset phase for clean attack
             voices[i].phase2 = 0.0;
             voices[i].active.store(true);
+            voices[i].released.store(false);  // Make sure it's not releasing
+            index = i;
             break;
         }
+    }
+    
+    if (index != -1) {
+        // Prepare ADSR
+        if (adsr.a > 0.0) {
+            voices[index].amplitude = 0.0;
+        } else {
+            voices[index].amplitude = 1.0;
+        }
+        
+        voices[index].peaked = false;
     }
 }
 
@@ -35,7 +66,11 @@ void Synth::noteOn(double freq) {
 void Synth::noteOff(double freq) {
     for (int i = 0; i < MAX_VOICES; ++i) {
         if (voices[i].active.load() && voices[i].frequency.load() == freq) {
-            voices[i].active.store(false);
+            if (adsr.r > 0.0) {
+                voices[i].released.store(true);
+            } else {
+                voices[i].active.store(false);
+            }
         }
     }
 }
@@ -52,6 +87,36 @@ bool Synth::onGetData(Chunk& data) {
         // Loop through all voices and add up the sound of the active ones
         for (int v = 0; v < MAX_VOICES; ++v) {
             if (!voices[v].active.load()) continue;
+            
+            // Update amplitude (ADSR)
+            if (voices[v].released.load()) {
+                if (voices[v].amplitude > 0.0) {
+                    voices[v].amplitude -= 1.0 / (adsr.r * SAMPLE_RATE);
+                }
+                
+                // Check if the voice has fully faded out
+                if (voices[v].amplitude <= 0.0 || adsr.r <= 0.0) {
+                    voices[v].amplitude = 0.0;
+                    voices[v].active.store(false);
+                    voices[v].released.store(false);
+                    continue;
+                }
+            } else if (!voices[v].peaked) {
+                if (adsr.a > 0.0 && voices[v].amplitude < 1.0) {
+                    voices[v].amplitude += 1.0 / (adsr.a * SAMPLE_RATE);
+                } else {
+                    voices[v].amplitude = 1.0;
+                    voices[v].peaked = true;
+                }
+            } else {
+                if (adsr.d > 0.0 && voices[v].amplitude > adsr.s) {
+                    voices[v].amplitude -= (1.0 - adsr.s) / (adsr.d * SAMPLE_RATE);
+                }
+                
+                if (voices[v].amplitude <= adsr.s || adsr.d <= 0.0) {
+                    voices[v].amplitude = adsr.s;
+                }
+            }
 
             double freq1 = voices[v].frequency.load();
             double freq2 = freq1 * 1.002;  // Slight detune for thickness
@@ -71,8 +136,8 @@ bool Synth::onGetData(Chunk& data) {
             // Mix the two oscillators for this specific voice
             double voiceMix = currentBlend * oscillator1 + (1.0f - currentBlend) * oscillator2;
             
-            // Accumulate this voice into the master output
-            mixedSample += voiceMix;
+            // Accumulate this voice into the master output, taking into account its amplitude
+            mixedSample += voiceMix * voices[v].amplitude;
 
             // Advance phases
             voices[v].phase += 2.0 * PI * freq1 / SAMPLE_RATE;
@@ -82,7 +147,7 @@ bool Synth::onGetData(Chunk& data) {
             if (voices[v].phase2 > 2.0 * PI) voices[v].phase2 -= 2.0 * PI;
         }
 
-        // Sample is multiplied by 4000 for volume, but divided by 4 so that you can play chords without clipping
+        // Sample is multiplied by 4000 for volume and divided by 4 to prevent clipping
         samples[i] = static_cast<std::int16_t>((mixedSample / 4.0) * 4000);
     }
 

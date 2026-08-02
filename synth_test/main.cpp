@@ -8,6 +8,7 @@ int main() {
     sf::RenderWindow window(sf::VideoMode({800, 600}), "Synth", sf::Style::Titlebar | sf::Style::Close);
 
     Synth synth;
+    synth.setADSR(2.0, 3.0, 0.0, 2.0);
     synth.play();
     
     int octaveShift = 0;
