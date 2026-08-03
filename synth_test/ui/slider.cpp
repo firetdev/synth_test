@@ -1,11 +1,13 @@
 #include "slider.hpp"
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <iomanip>
 
-Slider::Slider(float x, float y, float w, float h, float max_v, float current_v)
+Slider::Slider(float x_pos, float y_pos, float w, float h, float max_v, float current_v)
 : text(sf::Text(font)) {
-    x = x;
-    y = y;
+    x = x_pos;
+    y = y_pos;
     width = w;
     height = h;
     max_value = max_v;
@@ -17,12 +19,15 @@ Slider::Slider(float x, float y, float w, float h, float max_v, float current_v)
         return;
     }
     
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(1) << value;
+    text.setString(ss.str());
     text.setFont(font);
-    text.setPosition({x + 11, y});
-    text.setString(std::to_string(value));
+    text.setPosition({x + 8, y});
     text.setFillColor(sf::Color::Black);
     text.setOutlineColor(sf::Color::White);
     text.setOutlineThickness(1);
+    text.setCharacterSize(20);
     
     outline.setPosition({x, y});
     outline.setOutlineColor(sf::Color::White);
@@ -42,8 +47,8 @@ void Slider::render(sf::RenderWindow& win) {
     win.draw(text);
 }
 
-void Slider::handleClick(sf::Vector2i pos) {
-    if (!(pos.x > x && pos.x < (x + width) && pos.y > y && pos.y < (y + height))) return;  // Click was not within slider
+bool Slider::handleClick(sf::Vector2i pos) {
+    if (pos.x < x || pos.x > (x + width) || pos.y < y || pos.y > (y + height)) return false;  // Click was not within slider
     
     float relative_pos = pos.x - x;
     float pos_percentage = relative_pos / width;
@@ -52,5 +57,10 @@ void Slider::handleClick(sf::Vector2i pos) {
     value = pos_percentage * max_value;
     
     bar.setSize({width * percentage_full, height});
-    text.setString(std::to_string(value));
+    
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(1) << value;
+    text.setString(ss.str());
+    
+    return true;
 }

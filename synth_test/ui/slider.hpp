@@ -22,5 +22,5 @@ public:
     
     float getValue() { return value; }
     
-    void handleClick(sf::Vector2i);
+    bool handleClick(sf::Vector2i);
 };
