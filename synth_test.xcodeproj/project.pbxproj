@@ -15,6 +15,7 @@
 		AB2554372FE1091F006A22BF /* libsfml-window.3.0.2.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AB2554302FE1091F006A22BF /* libsfml-window.3.0.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AB2554382FE1091F006A22BF /* libsfml-graphics.3.0.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2554312FE1091F006A22BF /* libsfml-graphics.3.0.2.dylib */; };
 		AB2554392FE1091F006A22BF /* libsfml-graphics.3.0.2.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = AB2554312FE1091F006A22BF /* libsfml-graphics.3.0.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		AB784A3B3021198300C4CB6F /* arial.ttf in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB784A393021196F00C4CB6F /* arial.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -39,6 +40,16 @@
 				AB2554332FE1091F006A22BF /* libsfml-system.3.0.2.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB784A3A3021197900C4CB6F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+				AB784A3B3021198300C4CB6F /* arial.ttf in CopyFiles */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -2025,6 +2036,7 @@
 		AB25542F2FE1091F006A22BF /* libsfml-audio.3.0.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsfml-audio.3.0.2.dylib"; path = "../../../../../opt/homebrew/Cellar/sfml/3.0.2/lib/libsfml-audio.3.0.2.dylib"; sourceTree = "<group>"; };
 		AB2554302FE1091F006A22BF /* libsfml-window.3.0.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsfml-window.3.0.2.dylib"; path = "../../../../../opt/homebrew/Cellar/sfml/3.0.2/lib/libsfml-window.3.0.2.dylib"; sourceTree = "<group>"; };
 		AB2554312FE1091F006A22BF /* libsfml-graphics.3.0.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libsfml-graphics.3.0.2.dylib"; path = "../../../../../opt/homebrew/Cellar/sfml/3.0.2/lib/libsfml-graphics.3.0.2.dylib"; sourceTree = "<group>"; };
+		AB784A393021196F00C4CB6F /* arial.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = arial.ttf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -2070,6 +2082,7 @@
 		AB254A9B2FE10907006A22BF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AB784A393021196F00C4CB6F /* arial.ttf */,
 				AB25542F2FE1091F006A22BF /* libsfml-audio.3.0.2.dylib */,
 				AB2554312FE1091F006A22BF /* libsfml-graphics.3.0.2.dylib */,
 				AB25542E2FE1091F006A22BF /* libsfml-system.3.0.2.dylib */,
@@ -7858,6 +7871,7 @@
 				AB254A8E2FE108DD006A22BF /* Frameworks */,
 				AB254A8F2FE108DD006A22BF /* CopyFiles */,
 				AB25543A2FE1091F006A22BF /* Embed Libraries */,
+				AB784A3A3021197900C4CB6F /* CopyFiles */,
 			);
 			buildRules = (
 			);

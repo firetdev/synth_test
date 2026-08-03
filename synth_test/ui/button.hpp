@@ -20,6 +20,7 @@ public:
             std::cerr << "Failed to load font!" << std::endl;
             return;
         }
+        
         text.setFont(font);
         text.setPosition({x + 11, y});
         text.setString(text_content);

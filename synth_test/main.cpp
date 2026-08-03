@@ -3,7 +3,8 @@
 #include <cmath>
 #include "synth.hpp"
 #include "get_base_frequency.hpp"
-#include "button.hpp"
+#include "ui/button.hpp"
+#include "ui/slider.hpp"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({800, 600}), "Synth", sf::Style::Titlebar | sf::Style::Close);
@@ -11,6 +12,7 @@ int main() {
     Synth synth;
     synth.setADSR(2.0, 3.0, 0.0, 2.0);
     synth.play();
+
     
     int octaveShift = 0;
     std::map<sf::Keyboard::Key, double> activeNotes;
