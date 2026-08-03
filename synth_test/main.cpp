@@ -32,7 +32,7 @@ int main() {
                 else {
                     double baseFreq = getBaseFrequency(code);
                     
-                    // If it's a mapped key anf not already being held down
+                    // If it's a mapped key and not already being held down
                     if (baseFreq > 0.0 && activeNotes.find(code) == activeNotes.end()) {
                         double freq = baseFreq * std::pow(2.0, octaveShift);
                         
