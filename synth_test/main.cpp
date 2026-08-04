@@ -5,6 +5,7 @@
 #include "synth.hpp"
 #include "get_base_frequency.hpp"
 #include "ui/slider.hpp"
+#include "ui/keyboard.hpp"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({800, 600}), "Synth", sf::Style::Titlebar | sf::Style::Close);
@@ -23,6 +24,8 @@ int main() {
     synth.setADSR(a, d, s, r);
 
     // UI stuff
+    Keyboard keyboard;
+    
     sf::Font font;
     if (!font.openFromFile("arial.ttf")) {
         std::cerr << "Failed to load font!" << std::endl;
@@ -104,6 +107,8 @@ int main() {
                         synth.noteOn(freq);
                         activeNotes[code] = freq;
                     }
+                    
+                    keyboard.keyPress(code, true);
                 }
             } else if (const auto* keyRelease = event->getIf<sf::Event::KeyReleased>()) {
                 auto code = keyRelease->code;
@@ -113,6 +118,8 @@ int main() {
                     synth.noteOff(activeNotes[code]);
                     activeNotes.erase(code);
                 }
+                
+                keyboard.keyPress(code, false);
             }
             
             // Handle clicks
@@ -155,6 +162,7 @@ int main() {
         d_slider.render(window);
         s_slider.render(window);
         r_slider.render(window);
+        keyboard.render(window);
         window.display();
     }
 
