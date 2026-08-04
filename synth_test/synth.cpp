@@ -123,13 +123,13 @@ bool Synth::onGetData(Chunk& data) {
 
             double oscillator1 = 0;
             switch (wave1) {
-                case Waveform::Sine: oscillator1 = std::sin(voices[v].phase); break;
+                case Waveform::Sine: oscillator1 = std::sin(voices[v].phase) * 2; break;  // Double sin wave for volume
                 case Waveform::Saw: oscillator1 = sawWave(voices[v].phase); break;
             }
             
             double oscillator2 = 0;
             switch (wave2) {
-                case Waveform::Sine: oscillator2 = std::sin(voices[v].phase2); break;
+                case Waveform::Sine: oscillator2 = std::sin(voices[v].phase2) * 2; break;  // Double sin wave for volume
                 case Waveform::Saw: oscillator2 = sawWave(voices[v].phase2); break;
             }
             
