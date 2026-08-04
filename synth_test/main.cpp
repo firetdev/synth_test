@@ -1,9 +1,9 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include <map>
 #include <cmath>
 #include "synth.hpp"
 #include "get_base_frequency.hpp"
-#include "ui/button.hpp"
 #include "ui/slider.hpp"
 
 int main() {
