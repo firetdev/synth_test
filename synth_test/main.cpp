@@ -15,6 +15,12 @@ int main() {
     
     float blend = 0.8;
     synth.setBlend(blend);
+    
+    float a = 0.5;
+    float d = 3.0;
+    float s = 0.5;
+    float r = 0.5;
+    synth.setADSR(a, d, s, r);
 
     // UI stuff
     sf::Font font;
@@ -23,7 +29,7 @@ int main() {
     }
     
     sf::Text osc_text(font);
-    osc_text.setPosition({82, 26});
+    osc_text.setPosition({132, 60});
     osc_text.setString("Oscillator blend");
     osc_text.setFillColor(sf::Color::White);
     osc_text.setCharacterSize(26);
@@ -36,9 +42,40 @@ int main() {
     sine_text.setCharacterSize(20);
     saw_text.setFillColor(sf::Color::White);
     saw_text.setCharacterSize(20);
-    sine_text.setPosition({30, 70});
-    saw_text.setPosition({274, 70});
-    Slider blend_slider(83, 70, 180, 27, 1.0, blend);
+    sine_text.setPosition({80, 110});
+    saw_text.setPosition({324, 110});
+    Slider blend_slider(133, 110, 180, 27, 1.0, blend);
+    
+    sf::Text adsr_text(font);
+    adsr_text.setPosition({482, 60});
+    adsr_text.setString("ADSR Envelope");
+    adsr_text.setFillColor(sf::Color::White);
+    adsr_text.setCharacterSize(26);
+    
+    sf::Text a_text(font);
+    sf::Text d_text(font);
+    sf::Text s_text(font);
+    sf::Text r_text(font);
+    a_text.setString("Attack");
+    d_text.setString("Decay");
+    s_text.setString("Sustain");
+    r_text.setString("Release");
+    a_text.setFillColor(sf::Color::White);
+    a_text.setCharacterSize(20);
+    d_text.setFillColor(sf::Color::White);
+    d_text.setCharacterSize(20);
+    s_text.setFillColor(sf::Color::White);
+    s_text.setCharacterSize(20);
+    r_text.setFillColor(sf::Color::White);
+    r_text.setCharacterSize(20);
+    a_text.setPosition({440, 110});
+    d_text.setPosition({440, 170});
+    s_text.setPosition({433, 230});
+    r_text.setPosition({426, 290});
+    Slider a_slider(510, 110, 180, 27, 5.0, a);
+    Slider d_slider(510, 170, 180, 27, 5.0, d);
+    Slider s_slider(510, 230, 180, 27, 1.0, s);
+    Slider r_slider(510, 290, 180, 27, 5.0, r);
     
     int octaveShift = 0;
     std::map<sf::Keyboard::Key, double> activeNotes;
@@ -85,14 +122,39 @@ int main() {
                     blend = blend_slider.getValue();
                     synth.setBlend(blend);
                 }
+                if (a_slider.handleClick(mousePos)) {
+                    a = a_slider.getValue();
+                    synth.setADSR(a, d, s, r);
+                }
+                if (d_slider.handleClick(mousePos)) {
+                    d = d_slider.getValue();
+                    synth.setADSR(a, d, s, r);
+                }
+                if (s_slider.handleClick(mousePos)) {
+                    s = s_slider.getValue();
+                    synth.setADSR(a, d, s, r);
+                }
+                if (r_slider.handleClick(mousePos)) {
+                    r = r_slider.getValue();
+                    synth.setADSR(a, d, s, r);
+                }
             }
         }
         
         window.clear();
         window.draw(osc_text);
+        window.draw(adsr_text);
         window.draw(sine_text);
         window.draw(saw_text);
+        window.draw(a_text);
+        window.draw(d_text);
+        window.draw(s_text);
+        window.draw(r_text);
         blend_slider.render(window);
+        a_slider.render(window);
+        d_slider.render(window);
+        s_slider.render(window);
+        r_slider.render(window);
         window.display();
     }
 
