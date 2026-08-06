@@ -22,7 +22,7 @@ int main() {
     float r = 0.5;
     synth.setADSR(a, d, s, r);
     
-    float cutoff = 20000.0;
+    float cutoff = 8000.0;
     float depth = 0.0;
     float filter_a = 0.0;
     float filter_d = 0.0;
@@ -30,7 +30,7 @@ int main() {
     float filter_r = 0.0;
     synth.setCutoffFrequency(cutoff);
     synth.setFilterDepth(depth);
-    synth.setFilterADSR(a, d, s, r);
+    synth.setFilterADSR(filter_a, filter_d, filter_s, filter_r);
 
     // UI stuff
     Keyboard keyboard;
@@ -105,8 +105,33 @@ int main() {
     depth_text.setCharacterSize(20);
     cutoff_text.setPosition({80, 180});
     depth_text.setPosition({250, 180});
-    Slider cutoff_slider(80, 210, 160, 27, 20000.0, cutoff);
+    Slider cutoff_slider(80, 210, 160, 27, 8000.0, cutoff);
     Slider depth_slider(250, 210, 160, 27, 20000.0, depth);
+    
+    sf::Text filter_a_text(font);
+    sf::Text filter_d_text(font);
+    sf::Text filter_s_text(font);
+    sf::Text filter_r_text(font);
+    filter_a_text.setString("Attack");
+    filter_d_text.setString("Decay");
+    filter_s_text.setString("Sustain");
+    filter_r_text.setString("Release");
+    filter_a_text.setFillColor(sf::Color::White);
+    filter_a_text.setCharacterSize(20);
+    filter_d_text.setFillColor(sf::Color::White);
+    filter_d_text.setCharacterSize(20);
+    filter_s_text.setFillColor(sf::Color::White);
+    filter_s_text.setCharacterSize(20);
+    filter_r_text.setFillColor(sf::Color::White);
+    filter_r_text.setCharacterSize(20);
+    filter_a_text.setPosition({80, 247});
+    filter_d_text.setPosition({250, 247});
+    filter_s_text.setPosition({80, 314});
+    filter_r_text.setPosition({250, 314});
+    Slider filter_a_slider(80, 277, 160, 27, 5.0, filter_a);
+    Slider filter_d_slider(250, 277, 160, 27, 5.0, filter_d);
+    Slider filter_s_slider(80, 344, 160, 27, 1.0, filter_s);
+    Slider filter_r_slider(250, 344, 160, 27, 5.0, filter_r);
     
     int octaveShift = 0;
     std::map<sf::Keyboard::Key, double> activeNotes;
@@ -177,12 +202,28 @@ int main() {
                     synth.setADSR(a, d, s, r);
                 }
                 if (cutoff_slider.handleClick(mousePos)) {
-                    cutoff = std::clamp(cutoff_slider.getValue(), 20.f, 20000.f);
+                    cutoff = std::clamp(cutoff_slider.getValue(), 20.f, 8000.f);
                     synth.setCutoffFrequency(cutoff);
                 }
                 if (depth_slider.handleClick(mousePos)) {
                     depth = std::clamp(depth_slider.getValue(), 0.f, 20000.f) - 10000;
                     synth.setFilterDepth(depth);
+                }
+                if (filter_a_slider.handleClick(mousePos)) {
+                    filter_a = filter_a_slider.getValue();
+                    synth.setFilterADSR(filter_a, filter_d, filter_s, filter_r);
+                }
+                if (filter_d_slider.handleClick(mousePos)) {
+                    filter_d = filter_d_slider.getValue();
+                    synth.setFilterADSR(filter_a, filter_d, filter_s, filter_r);
+                }
+                if (filter_s_slider.handleClick(mousePos)) {
+                    filter_s = filter_s_slider.getValue();
+                    synth.setFilterADSR(filter_a, filter_d, filter_s, filter_r);
+                }
+                if (filter_r_slider.handleClick(mousePos)) {
+                    filter_r = filter_r_slider.getValue();
+                    synth.setFilterADSR(filter_a, filter_d, filter_s, filter_r);
                 }
             }
         }
@@ -196,17 +237,25 @@ int main() {
         window.draw(d_text);
         window.draw(s_text);
         window.draw(r_text);
+        window.draw(filter_text);
+        window.draw(cutoff_text);
+        window.draw(depth_text);
+        window.draw(filter_a_text);
+        window.draw(filter_d_text);
+        window.draw(filter_s_text);
+        window.draw(filter_r_text);
         blend_slider.render(window);
         a_slider.render(window);
         d_slider.render(window);
         s_slider.render(window);
         r_slider.render(window);
         keyboard.render(window);
-        window.draw(filter_text);
-        window.draw(cutoff_text);
-        window.draw(depth_text);
         cutoff_slider.render(window);
         depth_slider.render(window);
+        filter_a_slider.render(window);
+        filter_d_slider.render(window);
+        filter_s_slider.render(window);
+        filter_r_slider.render(window);
         window.display();
     }
 
