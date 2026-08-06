@@ -51,6 +51,13 @@ void Synth::noteOn(double freq) {
             voices[i].frequency.store(freq);
             voices[i].phase = 0.0;  // Reset phase for clean attack
             voices[i].phase2 = 0.0;
+            
+            voices[i].amplitude = (adsr.a > 0.0) ? 0.0 : 1.0;
+            voices[i].peaked = false;
+            voices[i].filterEnv = (filterAdsr.a > 0.0) ? 0.0 : 1.0;
+            voices[i].filterPeaked = false;
+            voices[i].filterMem = 0.0;
+            
             voices[i].active.store(true);
             voices[i].released.store(false);  // Make sure it's not releasing
             index = i;
@@ -197,8 +204,8 @@ bool Synth::onGetData(Chunk& data) {
             if (voices[v].phase2 > 2.0 * PI) voices[v].phase2 -= 2.0 * PI;
         }
 
-        // Sample is multiplied by 4000 for volume and divided by 2 to prevent clipping
-        samples[i] = static_cast<std::int16_t>((mixedSample / 2.0) * 4000);
+        // Sample is multiplied by 4000 for volume and divided by 2 to prevent clipping. Clamping is a last-resort
+        samples[i] = static_cast<std::int16_t>(std::clamp((mixedSample / 2.0) * 4000, -32767.0, 32767.0));
     }
 
     data.samples = samples.data();

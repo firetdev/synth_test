@@ -22,12 +22,20 @@ int main() {
     float r = 0.5;
     synth.setADSR(a, d, s, r);
     
-    float cutoff = 8000.0;
-    float depth = 0.0;
+    float cutoff = 20000.0;
+    float depth = 20000.0;
     float filter_a = 0.0;
     float filter_d = 0.0;
     float filter_s = 1.0;
     float filter_r = 0.0;
+    
+    float minFreq = 20.0f;
+    float maxFreq = 20000.0f;
+    
+    // Because hearing is logarithmic, the slider needs to imitate this
+    float initialCutoffFreq = 8000.0f;
+    float initialCutoffSliderPos = std::log(initialCutoffFreq / minFreq) / std::log(maxFreq / minFreq);
+    
     synth.setCutoffFrequency(cutoff);
     synth.setFilterDepth(depth);
     synth.setFilterADSR(filter_a, filter_d, filter_s, filter_r);
@@ -105,8 +113,8 @@ int main() {
     depth_text.setCharacterSize(20);
     cutoff_text.setPosition({80, 180});
     depth_text.setPosition({250, 180});
-    Slider cutoff_slider(80, 210, 160, 27, 8000.0, cutoff);
-    Slider depth_slider(250, 210, 160, 27, 20000.0, depth);
+    Slider cutoff_slider(80, 210, 160, 27, 1.0f, initialCutoffSliderPos);
+    Slider depth_slider(250, 210, 160, 27, 40000.0, depth);
     
     sf::Text filter_a_text(font);
     sf::Text filter_d_text(font);
@@ -202,11 +210,12 @@ int main() {
                     synth.setADSR(a, d, s, r);
                 }
                 if (cutoff_slider.handleClick(mousePos)) {
-                    cutoff = std::clamp(cutoff_slider.getValue(), 20.f, 8000.f);
+                    float sliderPos = std::clamp(cutoff_slider.getValue(), 0.0f, 1.0f);
+                    cutoff = minFreq * std::pow(maxFreq / minFreq, sliderPos);
                     synth.setCutoffFrequency(cutoff);
                 }
                 if (depth_slider.handleClick(mousePos)) {
-                    depth = std::clamp(depth_slider.getValue(), 0.f, 20000.f) - 10000;
+                    depth = std::clamp(depth_slider.getValue(), 0.f, 40000.f) - 20000;
                     synth.setFilterDepth(depth);
                 }
                 if (filter_a_slider.handleClick(mousePos)) {
