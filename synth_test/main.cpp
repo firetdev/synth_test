@@ -43,16 +43,20 @@ int main() {
     // UI stuff
     Keyboard keyboard;
     
+    sf::Vector2f osc_pos_offset(172, 10);
+    sf::Vector2f adsr_pos_offset(0, 90);
+    sf::Vector2f filter_pos_offset(0, -40);
+    
     sf::Font font;
     if (!font.openFromFile("arial.ttf")) {
         std::cerr << "Failed to load font!" << std::endl;
     }
     
     sf::Text osc_text(font);
-    osc_text.setPosition({132, 30});
+    osc_text.setPosition(sf::Vector2f(128, 30) + osc_pos_offset);
     osc_text.setString("Oscillator blend");
     osc_text.setFillColor(sf::Color::White);
-    osc_text.setCharacterSize(26);
+    osc_text.setCharacterSize(27);
     
     sf::Text sine_text(font);
     sf::Text saw_text(font);
@@ -62,12 +66,12 @@ int main() {
     sine_text.setCharacterSize(20);
     saw_text.setFillColor(sf::Color::White);
     saw_text.setCharacterSize(20);
-    sine_text.setPosition({80, 80});
-    saw_text.setPosition({324, 80});
-    Slider blend_slider(133, 80, 180, 27, 1.0, blend);
+    sine_text.setPosition(sf::Vector2f(80, 80) + osc_pos_offset);
+    saw_text.setPosition(sf::Vector2f(324, 80) + osc_pos_offset);
+    Slider blend_slider(133 + osc_pos_offset.x, 80 + osc_pos_offset.y, 180, 27, 1.0, blend);
     
     sf::Text adsr_text(font);
-    adsr_text.setPosition({502, 60});
+    adsr_text.setPosition(sf::Vector2f(502, 60) + adsr_pos_offset);
     adsr_text.setString("ADSR Envelope");
     adsr_text.setFillColor(sf::Color::White);
     adsr_text.setCharacterSize(26);
@@ -88,17 +92,17 @@ int main() {
     s_text.setCharacterSize(20);
     r_text.setFillColor(sf::Color::White);
     r_text.setCharacterSize(20);
-    a_text.setPosition({460, 110});
-    d_text.setPosition({460, 170});
-    s_text.setPosition({453, 230});
-    r_text.setPosition({446, 290});
-    Slider a_slider(530, 110, 180, 27, 5.0, a);
-    Slider d_slider(530, 170, 180, 27, 5.0, d);
-    Slider s_slider(530, 230, 180, 27, 1.0, s);
-    Slider r_slider(530, 290, 180, 27, 5.0, r);
+    a_text.setPosition(sf::Vector2f(460, 110) + adsr_pos_offset);
+    d_text.setPosition(sf::Vector2f(460, 170) + adsr_pos_offset);
+    s_text.setPosition(sf::Vector2f(453, 230) + adsr_pos_offset);
+    r_text.setPosition(sf::Vector2f(446, 290) + adsr_pos_offset);
+    Slider a_slider(530 + adsr_pos_offset.x, 110 + adsr_pos_offset.y, 180, 27, 5.0, a);
+    Slider d_slider(530 + adsr_pos_offset.x, 170 + adsr_pos_offset.y, 180, 27, 5.0, d);
+    Slider s_slider(530 + adsr_pos_offset.x, 230 + adsr_pos_offset.y, 180, 27, 1.0, s);
+    Slider r_slider(530 + adsr_pos_offset.x, 290 + adsr_pos_offset.y, 180, 27, 5.0, r);
     
     sf::Text filter_text(font);
-    filter_text.setPosition({80, 140});
+    filter_text.setPosition(sf::Vector2f(80, 178) + filter_pos_offset);
     filter_text.setString("Filter");
     filter_text.setFillColor(sf::Color::White);
     filter_text.setCharacterSize(26);
@@ -111,10 +115,10 @@ int main() {
     cutoff_text.setCharacterSize(20);
     depth_text.setFillColor(sf::Color::White);
     depth_text.setCharacterSize(20);
-    cutoff_text.setPosition({80, 180});
-    depth_text.setPosition({250, 180});
-    Slider cutoff_slider(80, 210, 160, 27, 1.0f, initialCutoffSliderPos);
-    Slider depth_slider(250, 210, 160, 27, 40000.0, depth);
+    cutoff_text.setPosition(sf::Vector2f(80, 220) + filter_pos_offset);
+    depth_text.setPosition(sf::Vector2f(250, 220) + filter_pos_offset);
+    Slider cutoff_slider(80 + filter_pos_offset.x, 250 + filter_pos_offset.y, 160, 27, 1.0f, initialCutoffSliderPos);
+    Slider depth_slider(250 + filter_pos_offset.x, 250 + filter_pos_offset.y, 160, 27, 40000.0, depth);
     
     sf::Text filter_a_text(font);
     sf::Text filter_d_text(font);
@@ -132,14 +136,14 @@ int main() {
     filter_s_text.setCharacterSize(20);
     filter_r_text.setFillColor(sf::Color::White);
     filter_r_text.setCharacterSize(20);
-    filter_a_text.setPosition({80, 247});
-    filter_d_text.setPosition({250, 247});
-    filter_s_text.setPosition({80, 314});
-    filter_r_text.setPosition({250, 314});
-    Slider filter_a_slider(80, 277, 160, 27, 5.0, filter_a);
-    Slider filter_d_slider(250, 277, 160, 27, 5.0, filter_d);
-    Slider filter_s_slider(80, 344, 160, 27, 1.0, filter_s);
-    Slider filter_r_slider(250, 344, 160, 27, 5.0, filter_r);
+    filter_a_text.setPosition(sf::Vector2f(80, 302) + filter_pos_offset);
+    filter_d_text.setPosition(sf::Vector2f(250, 302) + filter_pos_offset);
+    filter_s_text.setPosition(sf::Vector2f(80, 384) + filter_pos_offset);
+    filter_r_text.setPosition(sf::Vector2f(250, 384) + filter_pos_offset);
+    Slider filter_a_slider(80 + filter_pos_offset.x, 332 + filter_pos_offset.y, 160, 27, 5.0, filter_a);
+    Slider filter_d_slider(250 + filter_pos_offset.x, 332 + filter_pos_offset.y, 160, 27, 5.0, filter_d);
+    Slider filter_s_slider(80 + filter_pos_offset.x, 414 + filter_pos_offset.y, 160, 27, 1.0, filter_s);
+    Slider filter_r_slider(250 + filter_pos_offset.x, 414 + filter_pos_offset.y, 160, 27, 5.0, filter_r);
     
     int octaveShift = 0;
     std::map<sf::Keyboard::Key, double> activeNotes;

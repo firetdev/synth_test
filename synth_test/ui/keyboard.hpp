@@ -11,20 +11,20 @@ private:
 public:
     Keyboard() {
         for (int i = 0; i < 8; ++i) {
-            whiteKeys.emplace_back(sf::RectangleShape({100, 200}));
-            whiteKeys[i].setPosition({100 * static_cast<float>(i), 400});
+            whiteKeys.emplace_back(sf::RectangleShape({100, 150}));
+            whiteKeys[i].setPosition({100 * static_cast<float>(i), 450});
             whiteKeys[i].setOutlineColor(sf::Color(210, 210, 210));
             whiteKeys[i].setOutlineThickness(-1);
         }
         for (int i = 0; i < 5; ++i) {
-            blackKeys.emplace_back(sf::RectangleShape({50, 140}));
+            blackKeys.emplace_back(sf::RectangleShape({50, 90}));
         }
         
-        blackKeys[0].setPosition({75, 400});
-        blackKeys[1].setPosition({175, 400});
-        blackKeys[2].setPosition({375, 400});
-        blackKeys[3].setPosition({475, 400});
-        blackKeys[4].setPosition({575, 400});
+        blackKeys[0].setPosition({75, 450});
+        blackKeys[1].setPosition({175, 450});
+        blackKeys[2].setPosition({375, 450});
+        blackKeys[3].setPosition({475, 450});
+        blackKeys[4].setPosition({575, 450});
         
         for(auto& key : whiteKeys) {
             key.setFillColor(sf::Color::White);
