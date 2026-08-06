@@ -26,19 +26,21 @@ public:
     void setOscillator1(Waveform type) { osc1.store(type); }
     void setOscillator2(Waveform type) { osc2.store(type); }
     
-    void setCutoffFrequency(float cutoffHz) {
-        cutoffHz = std::clamp(cutoffHz, 20.0f, static_cast<float>(SAMPLE_RATE) / 2.0f);
-        // Calculate alpha (2 * pi * dt * fc / (2 * pi * dt * fc + 1))
-        float dt = 1.0f / SAMPLE_RATE;
-        float rc = 1.0f / (2.0f * static_cast<float>(PI) * cutoffHz);
-        alpha.store(dt / (rc + dt));
-    }
-    
     void setADSR(float a, float d, float s, float r) {
         adsr.a = a;
         adsr.d = d;
         adsr.s = s;
         adsr.r = r;
+    }
+    
+    void setCutoffFrequency(float cutoffHz) { baseCutoff.store(std::clamp(cutoffHz, 20.0f, static_cast<float>(SAMPLE_RATE) / 2.0f)); }
+    void setFilterDepth(float depthHz) { filterDepth.store(depthHz); }
+
+    void setFilterADSR(float a, float d, float s, float r) {
+        filterAdsr.a = a;
+        filterAdsr.d = d;
+        filterAdsr.s = s;
+        filterAdsr.r = r;
     }
     
 private:
@@ -48,8 +50,17 @@ private:
         std::atomic<bool> released{false};
         double phase = 0.0;
         double phase2 = 0.0;
+
+        // Amplitude envelope
         float amplitude = 1.f;
         bool peaked = false;  // Checks whether the amplitude should be rising to 1.0 or falling to the sustain level
+
+        // Filter envelope state
+        float filterEnv = 1.f;
+        bool filterPeaked = false;
+        
+        // Previous sample
+        double filterMem = 0.0;
     };
     
     struct Envelope {
@@ -67,10 +78,11 @@ private:
     std::atomic<Waveform> osc1{Waveform::Sine};
     std::atomic<Waveform> osc2{Waveform::Saw};
     
-    std::atomic<float> alpha{1.0f};
-    double lastFilteredSample = 0.0;
-    
     Envelope adsr;
+    Envelope filterAdsr;
+
+    std::atomic<float> baseCutoff{1000.0f};  // Lowest point of the filter
+    std::atomic<float> filterDepth{5000.0f};  // How much Hz the envelope adds
 
 protected:
     static constexpr double PI = 3.14159265358979323846;

@@ -12,7 +12,6 @@ int main() {
 
     Synth synth;
     synth.setADSR(2.0, 3.0, 0.0, 2.0);
-    synth.play();
     
     float blend = 0.8;
     synth.setBlend(blend);
@@ -83,6 +82,9 @@ int main() {
     int octaveShift = 0;
     std::map<sf::Keyboard::Key, double> activeNotes;
 
+    // Start synth
+    synth.play();
+    
     while (window.isOpen()) {
         while (auto event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {

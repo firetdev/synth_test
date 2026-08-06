@@ -9,7 +9,9 @@ Synth::Synth() {
         {sf::SoundChannel::Mono}
     );
     
-    setCutoffFrequency(20000.0f);
+    setCutoffFrequency(static_cast<float>(SAMPLE_RATE) / 2.0f);
+    setFilterDepth(0.0f);
+    setFilterADSR(0.0f, 0.0f, 1.0f, 0.0f);
 }
 
 Synth::Synth(float a, float d, float s, float r) {
@@ -25,7 +27,9 @@ Synth::Synth(float a, float d, float s, float r) {
     adsr.s = s;
     adsr.r = r;
     
-    setCutoffFrequency(20000.0f);
+    setCutoffFrequency(static_cast<float>(SAMPLE_RATE) / 2.0f);
+    setFilterDepth(0.0f);
+    setFilterADSR(0.0f, 0.0f, 1.0f, 0.0f);
 }
 
 // Trigger a note on a specific frequency
@@ -56,11 +60,12 @@ void Synth::noteOn(double freq) {
     
     if (index != -1) {
         // Prepare ADSR
-        if (adsr.a > 0.0) {
-            voices[index].amplitude = 0.0;
-        } else {
-            voices[index].amplitude = 1.0;
-        }
+        voices[index].amplitude = (adsr.a > 0.0) ? 0.0 : 1.0;
+        voices[index].peaked = false;
+        
+        voices[index].filterEnv = (filterAdsr.a > 0.0) ? 0.0 : 1.0;
+        voices[index].filterPeaked = false;
+        voices[index].filterMem = 0.0;
         
         voices[index].peaked = false;
     }
@@ -82,10 +87,12 @@ void Synth::noteOff(double freq) {
 // Main synth function
 bool Synth::onGetData(Chunk& data) {
     float currentBlend = blend.load();
-    float currentAlpha = alpha.load();
     Waveform wave1 = osc1.load();
     Waveform wave2 = osc2.load();
 
+    float currentBaseCutoff = baseCutoff.load();
+    float currentDepth = filterDepth.load();
+    
     for (int i = 0; i < BUFFER_SIZE; i++) {
         double mixedSample = 0.0;
 
@@ -122,6 +129,29 @@ bool Synth::onGetData(Chunk& data) {
                     voices[v].amplitude = adsr.s;
                 }
             }
+            
+            // Update filter ADSR
+            if (voices[v].released.load()) {
+                if (voices[v].filterEnv > 0.0) {
+                    voices[v].filterEnv -= 1.0 / (filterAdsr.r * SAMPLE_RATE);
+                }
+                if (voices[v].filterEnv <= 0.0 || filterAdsr.r <= 0.0) {
+                    voices[v].filterEnv = 0.0;
+                }
+            } else if (!voices[v].filterPeaked) {
+                if (filterAdsr.a > 0.0 && voices[v].filterEnv < 1.0) {
+                    voices[v].filterEnv += 1.0 / (filterAdsr.a * SAMPLE_RATE);
+                } else {
+                    voices[v].filterEnv = 1.0; voices[v].filterPeaked = true;
+                }
+            } else {
+                if (filterAdsr.d > 0.0 && voices[v].filterEnv > filterAdsr.s) {
+                    voices[v].filterEnv -= (1.0 - filterAdsr.s) / (filterAdsr.d * SAMPLE_RATE);
+                }
+                if (voices[v].filterEnv <= filterAdsr.s || filterAdsr.d <= 0.0) {
+                    voices[v].filterEnv = filterAdsr.s;
+                }
+            }
 
             double freq1 = voices[v].frequency.load();
             double freq2 = freq1 * 1.002;  // Slight detune for thickness
@@ -141,8 +171,20 @@ bool Synth::onGetData(Chunk& data) {
             // Mix the two oscillators for this specific voice
             double voiceMix = currentBlend * oscillator1 + (1.0f - currentBlend) * oscillator2;
             
-            // Accumulate this voice into the master output, taking into account its amplitude
-            mixedSample += voiceMix * voices[v].amplitude;
+            // Get cutoff
+            float currentVoiceCutoff = currentBaseCutoff + (voices[v].filterEnv * currentDepth);
+            currentVoiceCutoff = std::clamp(currentVoiceCutoff, 20.0f, static_cast<float>(SAMPLE_RATE) / 2.0f);
+            
+            // Calculate alpha
+            float dt = 1.0f / SAMPLE_RATE;
+            float rc = 1.0f / (2.0f * PI * currentVoiceCutoff);
+            float voiceAlpha = dt / (rc + dt);
+
+            // Filter the voice
+            voices[v].filterMem = voices[v].filterMem + voiceAlpha * (voiceMix - voices[v].filterMem);
+            
+            // Add to final sample
+            mixedSample += voices[v].filterMem * voices[v].amplitude;
 
             // Advance phases
             voices[v].phase += 2.0 * PI * freq1 / SAMPLE_RATE;
@@ -152,11 +194,8 @@ bool Synth::onGetData(Chunk& data) {
             if (voices[v].phase2 > 2.0 * PI) voices[v].phase2 -= 2.0 * PI;
         }
 
-        // Update lastFilteredSample for LP filter
-        lastFilteredSample = lastFilteredSample + currentAlpha * (mixedSample - lastFilteredSample);
-
         // Sample is multiplied by 4000 for volume and divided by 2 to prevent clipping
-        samples[i] = static_cast<std::int16_t>((lastFilteredSample / 2.0) * 4000);
+        samples[i] = static_cast<std::int16_t>((mixedSample / 2.0) * 4000);
     }
 
     data.samples = samples.data();
