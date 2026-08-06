@@ -5,6 +5,7 @@
 #include <atomic>
 #include <array>
 #include <map>
+#include <cmath>
 
 class Synth : public sf::SoundStream {
 public:
