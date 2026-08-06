@@ -111,6 +111,9 @@ bool Synth::onGetData(Chunk& data) {
                     voices[v].amplitude = 0.0;
                     voices[v].active.store(false);
                     voices[v].released.store(false);
+                    voices[v].filterEnv = 0.0;
+                    voices[v].filterMem = 0.0;
+                    voices[v].filterPeaked = false;
                     continue;
                 }
             } else if (!voices[v].peaked) {
