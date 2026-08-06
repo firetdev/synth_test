@@ -21,9 +21,19 @@ public:
     void noteOff(double);
     
     void setBlend(float b) { blend = b; }
+    
     void setOscillators(Waveform a, Waveform b) { osc1.store(a); osc2.store(b); }
     void setOscillator1(Waveform type) { osc1.store(type); }
     void setOscillator2(Waveform type) { osc2.store(type); }
+    
+    void setCutoffFrequency(float cutoffHz) {
+        cutoffHz = std::clamp(cutoffHz, 20.0f, static_cast<float>(SAMPLE_RATE) / 2.0f);
+        // Calculate alpha (2 * pi * dt * fc / (2 * pi * dt * fc + 1))
+        float dt = 1.0f / SAMPLE_RATE;
+        float rc = 1.0f / (2.0f * static_cast<float>(PI) * cutoffHz);
+        alpha.store(dt / (rc + dt));
+    }
+    
     void setADSR(float a, float d, float s, float r) {
         adsr.a = a;
         adsr.d = d;
@@ -56,6 +66,9 @@ private:
     std::atomic<float> blend{0.8f};  // Percentage of sound that comes from oscillator 1
     std::atomic<Waveform> osc1{Waveform::Sine};
     std::atomic<Waveform> osc2{Waveform::Saw};
+    
+    std::atomic<float> alpha{1.0f};
+    double lastFilteredSample = 0.0;
     
     Envelope adsr;
 

@@ -8,6 +8,8 @@ Synth::Synth() {
         SAMPLE_RATE,
         {sf::SoundChannel::Mono}
     );
+    
+    setCutoffFrequency(20000.0f);
 }
 
 Synth::Synth(float a, float d, float s, float r) {
@@ -22,6 +24,8 @@ Synth::Synth(float a, float d, float s, float r) {
     adsr.d = d;
     adsr.s = s;
     adsr.r = r;
+    
+    setCutoffFrequency(20000.0f);
 }
 
 // Trigger a note on a specific frequency
@@ -78,6 +82,7 @@ void Synth::noteOff(double freq) {
 // Main synth function
 bool Synth::onGetData(Chunk& data) {
     float currentBlend = blend.load();
+    float currentAlpha = alpha.load();
     Waveform wave1 = osc1.load();
     Waveform wave2 = osc2.load();
 
@@ -147,8 +152,11 @@ bool Synth::onGetData(Chunk& data) {
             if (voices[v].phase2 > 2.0 * PI) voices[v].phase2 -= 2.0 * PI;
         }
 
+        // Update lastFilteredSample for LP filter
+        lastFilteredSample = lastFilteredSample + currentAlpha * (mixedSample - lastFilteredSample);
+
         // Sample is multiplied by 4000 for volume and divided by 2 to prevent clipping
-        samples[i] = static_cast<std::int16_t>((mixedSample / 2.0) * 4000);
+        samples[i] = static_cast<std::int16_t>((lastFilteredSample / 2.0) * 4000);
     }
 
     data.samples = samples.data();
