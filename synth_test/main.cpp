@@ -21,6 +21,16 @@ int main() {
     float s = 0.5;
     float r = 0.5;
     synth.setADSR(a, d, s, r);
+    
+    float cutoff = 20000.0;
+    float depth = 0.0;
+    float filter_a = 0.0;
+    float filter_d = 0.0;
+    float filter_s = 1.0;
+    float filter_r = 0.0;
+    synth.setCutoffFrequency(cutoff);
+    synth.setFilterDepth(depth);
+    synth.setFilterADSR(a, d, s, r);
 
     // UI stuff
     Keyboard keyboard;
@@ -31,7 +41,7 @@ int main() {
     }
     
     sf::Text osc_text(font);
-    osc_text.setPosition({132, 60});
+    osc_text.setPosition({132, 30});
     osc_text.setString("Oscillator blend");
     osc_text.setFillColor(sf::Color::White);
     osc_text.setCharacterSize(26);
@@ -44,12 +54,12 @@ int main() {
     sine_text.setCharacterSize(20);
     saw_text.setFillColor(sf::Color::White);
     saw_text.setCharacterSize(20);
-    sine_text.setPosition({80, 110});
-    saw_text.setPosition({324, 110});
-    Slider blend_slider(133, 110, 180, 27, 1.0, blend);
+    sine_text.setPosition({80, 80});
+    saw_text.setPosition({324, 80});
+    Slider blend_slider(133, 80, 180, 27, 1.0, blend);
     
     sf::Text adsr_text(font);
-    adsr_text.setPosition({482, 60});
+    adsr_text.setPosition({502, 60});
     adsr_text.setString("ADSR Envelope");
     adsr_text.setFillColor(sf::Color::White);
     adsr_text.setCharacterSize(26);
@@ -70,14 +80,33 @@ int main() {
     s_text.setCharacterSize(20);
     r_text.setFillColor(sf::Color::White);
     r_text.setCharacterSize(20);
-    a_text.setPosition({440, 110});
-    d_text.setPosition({440, 170});
-    s_text.setPosition({433, 230});
-    r_text.setPosition({426, 290});
-    Slider a_slider(510, 110, 180, 27, 5.0, a);
-    Slider d_slider(510, 170, 180, 27, 5.0, d);
-    Slider s_slider(510, 230, 180, 27, 1.0, s);
-    Slider r_slider(510, 290, 180, 27, 5.0, r);
+    a_text.setPosition({460, 110});
+    d_text.setPosition({460, 170});
+    s_text.setPosition({453, 230});
+    r_text.setPosition({446, 290});
+    Slider a_slider(530, 110, 180, 27, 5.0, a);
+    Slider d_slider(530, 170, 180, 27, 5.0, d);
+    Slider s_slider(530, 230, 180, 27, 1.0, s);
+    Slider r_slider(530, 290, 180, 27, 5.0, r);
+    
+    sf::Text filter_text(font);
+    filter_text.setPosition({80, 140});
+    filter_text.setString("Filter");
+    filter_text.setFillColor(sf::Color::White);
+    filter_text.setCharacterSize(26);
+    
+    sf::Text cutoff_text(font);
+    sf::Text depth_text(font);
+    cutoff_text.setString("Filter cutoff");
+    depth_text.setString("Filter depth");
+    cutoff_text.setFillColor(sf::Color::White);
+    cutoff_text.setCharacterSize(20);
+    depth_text.setFillColor(sf::Color::White);
+    depth_text.setCharacterSize(20);
+    cutoff_text.setPosition({80, 180});
+    depth_text.setPosition({250, 180});
+    Slider cutoff_slider(80, 210, 160, 27, 20000.0, cutoff);
+    Slider depth_slider(250, 210, 160, 27, 20000.0, depth);
     
     int octaveShift = 0;
     std::map<sf::Keyboard::Key, double> activeNotes;
@@ -147,6 +176,14 @@ int main() {
                     r = r_slider.getValue();
                     synth.setADSR(a, d, s, r);
                 }
+                if (cutoff_slider.handleClick(mousePos)) {
+                    cutoff = std::clamp(cutoff_slider.getValue(), 20.f, 20000.f);
+                    synth.setCutoffFrequency(cutoff);
+                }
+                if (depth_slider.handleClick(mousePos)) {
+                    depth = std::clamp(depth_slider.getValue(), 0.f, 20000.f) - 10000;
+                    synth.setFilterDepth(depth);
+                }
             }
         }
         
@@ -165,6 +202,11 @@ int main() {
         s_slider.render(window);
         r_slider.render(window);
         keyboard.render(window);
+        window.draw(filter_text);
+        window.draw(cutoff_text);
+        window.draw(depth_text);
+        cutoff_slider.render(window);
+        depth_slider.render(window);
         window.display();
     }
 
